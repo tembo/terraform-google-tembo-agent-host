@@ -1,0 +1,103 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Test (${{ matrix.tool }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        tool: [terraform, tofu]
+    env:
+      TF: ${{ matrix.tool }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - if: matrix.tool == 'terraform'
+        uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_wrapper: false
+
+      - if: matrix.tool == 'tofu'
+        uses: opentofu/setup-opentofu@v2
+        with:
+          tofu_wrapper: false
+
+      - name: Check formatting
+        run: $TF fmt -check -recursive -diff
+
+      - name: Validate
+        run: |
+          $TF init -backend=false -input=false
+          $TF validate
+
+      - name: Validate examples/complete
+        working-directory: examples/complete
+        run: |
+          $TF init -backend=false -input=false
+          $TF validate
+
+      # The lowest Google provider versions.tf allows.
+      - name: Validate with the minimum Google provider
+        run: |
+          cat > versions_override.tf <<'HCL'
+          terraform {
+            required_providers {
+              google = {
+                source  = "hashicorp/google"
+                version = "6.0.0"
+              }
+            }
+          }
+          HCL
+          $TF init -backend=false -input=false -upgrade
+          $TF validate
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: terraform-linters/setup-tflint@v6
+        with:
+          tflint_version: v0.65.0
+
+      - name: tflint
+        env:
+          # Plugin downloads hit the GitHub API.
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          tflint --init
+          tflint --recursive --format compact
+
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: test/src/go.mod
+          cache-dependency-path: test/src/go.sum
+
+      - name: go vet (Terratest)
+        working-directory: test/src
+        run: go vet ./...
+
+  docs:
+    name: README
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Check README inputs and outputs are up to date
+        uses: terraform-docs/gh-actions@v1.4.1
+        with:
+          config-file: .terraform-docs.yml
+          output-method: inject
+          fail-on-diff: true
