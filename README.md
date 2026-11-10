@@ -127,6 +127,18 @@ The manager firewall rule allows the cluster's pod range and its nodes' subnetwo
 any other clients of the host manager, in `manager_ingress_source_ranges`. For a Shared VPC subnetwork, the module
 creates the firewall rules and the controller's `roles/compute.networkUser` in the network's host project.
 
+### Permissions to apply
+
+The identity that applies the module needs, besides read access to the cluster (`roles/container.clusterViewer`):
+
+| Project | Roles | For |
+| --- | --- | --- |
+| `project_id` | `roles/iam.serviceAccountAdmin`, `roles/storage.admin` | The controller and control plane service accounts and their Workload Identity bindings; the bucket and its bindings |
+| `host_project_id` | `roles/iam.serviceAccountAdmin`, `roles/iam.roleAdmin`, `roles/resourcemanager.projectIamAdmin` | The host service account; the controller's custom roles and their bindings |
+| The host subnetwork's project | `roles/compute.networkAdmin`, `roles/compute.securityAdmin` | The controller's `roles/compute.networkUser` on the subnetwork; the firewall rules |
+
+`roles/owner` covers all of these. `roles/editor` doesn't: it can't create custom roles or set IAM on subnetworks.
+
 ### Organization policies and quotas
 
 - `constraints/compute.disableNestedVirtualization` must not be enforced on the host project: hosts run agents in VMs
