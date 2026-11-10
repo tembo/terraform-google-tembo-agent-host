@@ -1,0 +1,27 @@
+#  Local .terraform directories
+**/.terraform
+**/.terraform.d
+
+# .tfstate files
+*.tfstate
+*.tfstate.*
+.terraform
+.terraform.tfstate.lock.info
+.terraform.lock.hcl
+
+**/.idea
+**/*.iml
+
+
+# Crash log files
+crash.log
+test.log
+
+# Editor backups
+*.orig
+*.draft
+*~
+
+
+# Terratest
+test/src/vendor/
