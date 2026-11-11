@@ -15,7 +15,7 @@ jobs:
     steps:
       # Reads changed paths through the API; never checks out the pull request.
       - name: Apply labels from changed paths
-        uses: actions/labeler@v6
+        uses: actions/labeler@v7
         with:
           sync-labels: true
 
