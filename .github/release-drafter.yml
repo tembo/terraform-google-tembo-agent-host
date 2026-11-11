@@ -29,7 +29,8 @@ version-resolver:
 
 # Labels each pull request with its version bump from its conventional-commit
 # title (the Labeler workflow runs this): breaking changes (`type!:` or a
-# BREAKING CHANGE note) are major, features minor, everything else patch.
+# BREAKING CHANGE note) are major, features minor, documentation and CI changes
+# no-release (they wait for the next release), everything else patch.
 autolabeler:
   - label: major
     title:
@@ -39,6 +40,9 @@ autolabeler:
   - label: minor
     title:
       - '/^feat(\([^)]*\))?:/'
+  - label: no-release
+    title:
+      - '/^(docs|ci)(\([^)]*\))?:/'
   - label: patch
     title:
-      - '/^(fix|perf|refactor|revert|docs|chore|ci|build|style|test)(\([^)]*\))?:/'
+      - '/^(fix|perf|refactor|revert|chore|build|style|test)(\([^)]*\))?:/'
