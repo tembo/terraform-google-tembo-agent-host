@@ -80,6 +80,19 @@ resource "google_compute_router_nat" "this" {
   router                             = one(google_compute_router.this[*].name)
   nat_ip_allocate_option             = "AUTO_ONLY"
   source_subnetwork_ip_ranges_to_nat = "ALL_SUBNETWORKS_ALL_IP_RANGES"
+
+  # A host carries the egress of every session VM on it. The default of 64
+  # ports per VM runs out with a couple of sessions, and agents fail with
+  # "Unable to connect".
+  enable_dynamic_port_allocation      = true
+  enable_endpoint_independent_mapping = false
+  min_ports_per_vm                    = 1024
+  max_ports_per_vm                    = 65536
+
+  log_config {
+    enable = true
+    filter = "ERRORS_ONLY"
+  }
 }
 
 module "cluster_label" {

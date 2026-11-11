@@ -119,7 +119,9 @@ For a cluster without an IP endpoint, set `api_server_url`.
 ### Network
 
 Hosts have no external addresses. The host subnetwork needs Cloud NAT for egress to Tembo's API, LLM endpoints, code
-hosts and registries, and Private Google Access for Cloud Storage and IAM. Hosts reach the chart's bundled Postgres
+hosts and registries, and Private Google Access for Cloud Storage and IAM. A host carries the egress of every session
+VM on it, so give the NAT dynamic port allocation with at least 1,024 ports per VM (as `examples/complete` does):
+Cloud NAT's default of 64 runs out with a couple of sessions, and agents fail with "Unable to connect". Hosts reach the chart's bundled Postgres
 and Redis through internal load balancers (`hostAccess`); an external database or Redis must accept connections from
 the host subnetwork.
 
