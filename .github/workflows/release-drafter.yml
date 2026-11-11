@@ -25,5 +25,8 @@ jobs:
     steps:
       - uses: cloudposse/github-action-auto-release@8f9b7192d095af697c5900235e4aecf930663f28 # v4.0.1
         with:
+          # Required: the action's duplicate check templates it into a script,
+          # and the empty default doesn't parse.
+          prerelease: false
           publish: true
           config-name: release-drafter.yml
