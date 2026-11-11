@@ -22,7 +22,7 @@ jobs:
       # Release Drafter's autolabeler: major, minor or patch from the title
       # (.github/release-drafter.yml), which the next release's version follows.
       - name: Apply the version label from the title
-        uses: release-drafter/release-drafter@v6
+        uses: release-drafter/release-drafter@v7
         with:
           disable-releaser: true
         env:
