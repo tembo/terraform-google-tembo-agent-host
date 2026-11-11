@@ -1,7 +1,8 @@
 name: Release Drafter
 
-# Drafts the next release from merged pull requests. Publishing the draft tags
-# it, and the Terraform Registry picks up the tag.
+# Publishes the next release on every merge, versioned by the merged pull
+# requests' major, minor or patch labels. The release tags the commit, and the
+# Terraform Registry picks up the tag.
 on:
   push:
     branches:
@@ -22,5 +23,8 @@ jobs:
       pull-requests: read
     steps:
       - uses: release-drafter/release-drafter@v6
+        with:
+          publish: true
+          commitish: ${{ github.sha }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

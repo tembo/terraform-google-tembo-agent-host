@@ -2,7 +2,7 @@ name: Labeler
 
 on:
   pull_request_target:
-    types: [opened, synchronize, reopened]
+    types: [opened, edited, synchronize, reopened]
 
 permissions:
   contents: read
@@ -18,3 +18,12 @@ jobs:
         uses: actions/labeler@v6
         with:
           sync-labels: true
+
+      # Release Drafter's autolabeler: major, minor or patch from the title
+      # (.github/release-drafter.yml), which the next release's version follows.
+      - name: Apply the version label from the title
+        uses: release-drafter/release-drafter@v6
+        with:
+          disable-releaser: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
