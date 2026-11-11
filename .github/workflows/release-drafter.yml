@@ -2,7 +2,8 @@ name: Release Drafter
 
 # Publishes the next release on every merge, versioned by the merged pull
 # requests' major, minor or patch labels. The release tags the commit, and the
-# Terraform Registry picks up the tag.
+# Terraform Registry picks up the tag. A pull request labelled no-release
+# (documentation and CI changes) waits in the draft for the next release.
 on:
   push:
     branches:
@@ -22,9 +23,7 @@ jobs:
       contents: write
       pull-requests: read
     steps:
-      - uses: release-drafter/release-drafter@v6
+      - uses: cloudposse/github-action-auto-release@8f9b7192d095af697c5900235e4aecf930663f28 # v4.0.1
         with:
           publish: true
-          commitish: ${{ github.sha }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          config-name: release-drafter.yml
