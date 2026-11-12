@@ -48,8 +48,9 @@ output "object_storage_bucket_name" {
 
 output "helm_values" {
   description = <<-EOT
-    Values for the tembo Helm chart: the host controller with this module's identity, a host class and pool named
-    `default`, and with object storage, the bucket and the control plane's identity.
+    Values for the tembo Helm chart: its Ingresses for GKE's Ingress (`ingress.gcp`), the host controller with this
+    module's identity, a host class and pool named `default`, and with object storage, the bucket and the control plane's
+    identity.
     EOT
   # GKE's metadata server gets a pod's credentials when it asks for them, which
   # fails until the Workload Identity bindings and the roles exist.
@@ -92,6 +93,8 @@ output "helm_values" {
       }
     }
     },
+    # The chart's Ingresses, for GKE's Ingress.
+    { ingress = { gcp = { enabled = true } } },
     # A list, empty when off, avoids a conditional between unlike objects.
     [for values in [{
       objectStorage = {
