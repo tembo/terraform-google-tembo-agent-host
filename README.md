@@ -57,10 +57,10 @@ resource "helm_release" "tembo" {
 }
 ```
 
-`helm_values` installs the controller for Google Cloud (`cloudProviders: [gcp]`) with this module's service account, the
-host project and the instance name prefix, and a host class and pool named `default`: the module's subnetwork, host
-service account, image and `machine_types` with `local_ssd_count` local SSDs, one to three hosts. `host_class` is the
-same class, for adding more.
+`helm_values` turns on the chart's Google Cloud settings (`provider.gcp`, with the host project and the instance name
+prefix), and installs the controller with this module's service account, and a host class and pool named `default`:
+the module's subnetwork, host service account, image and `machine_types` with `local_ssd_count` local SSDs, one to
+three hosts. `host_class` is the same class, for adding more.
 
 The class selects Tembo's agent host image by channel (`image_channel`, default `stable`). The host controller sends the
 install's license key, project and service account to Tembo's API, which grants the controller's service account
@@ -313,7 +313,7 @@ GOOGLE_CLOUD_PROJECT=my-project make -C test/src test
 | control\_plane\_service\_account\_email | Email of the control plane's Google service account, which reads and writes the install's object storage. |
 | controller\_service\_account\_email | Email of the host controller's Google service account. |
 | firewall\_rule\_names | Firewall rules the module creates for agent hosts. |
-| helm\_values | Values for the tembo Helm chart: the host controller with this module's identity, a host class and pool named<br/>`default`, and with object storage, the bucket and the control plane's identity. |
+| helm\_values | Values for the tembo Helm chart: its Google Cloud settings (`provider.gcp`, with the host project and instance name<br/>prefix), the host controller with this module's identity, a host class and pool named `default`, and with object<br/>storage, the bucket and the control plane's identity. |
 | host\_class | A host class using this module's subnetwork, service account, image and machine types, for the chart's<br/>`compute.hostClasses.<name>`. `helm_values` already sets one named `default`. |
 | host\_service\_account\_email | Email of the service account agent hosts launch with. |
 | host\_subnetwork\_cidr | Primary range of the host subnetwork. Hosts read their configuration through the cluster's Kubernetes API, so add<br/>it to the cluster's master authorized networks when they apply to its private endpoint. |
