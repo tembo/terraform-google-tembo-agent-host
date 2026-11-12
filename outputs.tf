@@ -48,9 +48,9 @@ output "object_storage_bucket_name" {
 
 output "helm_values" {
   description = <<-EOT
-    Values for the tembo Helm chart: its Google Cloud settings (`provider.gcp`, with the host project and instance name
-    prefix), the host controller with this module's identity, a host class and pool named `default`, and with object
-    storage, the bucket and the control plane's identity.
+    Values for the tembo Helm chart: its Ingresses for GKE's Ingress (`ingress.gcp`), the host controller with this
+    module's identity, a host class and pool named `default`, and with object storage, the bucket and the control plane's
+    identity.
     EOT
   # GKE's metadata server gets a pod's credentials when it asks for them, which
   # fails until the Workload Identity bindings and the roles exist.
@@ -69,8 +69,13 @@ output "helm_values" {
     compute = {
       mode = "controller"
       controller = {
-        clusterName  = var.cluster_name
-        apiServerUrl = local.api_server_url
+        clusterName    = var.cluster_name
+        apiServerUrl   = local.api_server_url
+        cloudProviders = ["gcp"]
+        gcp = {
+          project            = local.host_project_id
+          instanceNamePrefix = local.instance_name_prefix
+        }
         serviceAccount = {
           annotations = { "iam.gke.io/gcp-service-account" = one(google_service_account.controller[*].email) }
         }
@@ -88,19 +93,13 @@ output "helm_values" {
       }
     }
     },
-    {
-      provider = {
-        gcp = {
-          enabled            = true
-          project            = local.host_project_id
-          instanceNamePrefix = local.instance_name_prefix
-        }
-      }
-    },
+    # The chart's Ingresses, for GKE's Ingress.
+    { ingress = { gcp = { enabled = true } } },
     # A list, empty when off, avoids a conditional between unlike objects.
     [for values in [{
       objectStorage = {
-        bucket = local.object_storage_bucket_name
+        provider = "gcs"
+        bucket   = local.object_storage_bucket_name
       }
       serviceAccount = {
         annotations = { "iam.gke.io/gcp-service-account" = one(google_service_account.control_plane[*].email) }
