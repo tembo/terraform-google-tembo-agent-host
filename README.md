@@ -24,8 +24,8 @@ The module reads the cluster and the host subnetwork and does not change them.
 
 ```hcl
 module "tembo_agent_host" {
-  source  = "tembo/tembo-agent-host/google"
-  version = "x.x.x"
+  # The module isn't on the Terraform Registry: use a release tag from GitHub.
+  source = "git::https://github.com/tembo/terraform-google-tembo-agent-host.git?ref=vX.Y.Z"
 
   project_id           = "acme-prod"
   cluster_name         = "prod"
@@ -46,9 +46,15 @@ Pass `helm_values` to the `tembo` chart, before your own values so they can over
 
 ```hcl
 resource "helm_release" "tembo" {
-  name      = "tembo"
-  namespace = "tembo"
-  chart     = "tembo-x.y.z.tgz" # The tembo chart from your Tembo release.
+  name       = "tembo"
+  namespace  = "tembo"
+  repository = "oci://registry.tembo.io"
+  chart      = "tembo"
+  version    = "x.y.z"
+
+  # registry.tembo.io signs in with your license key.
+  repository_username = "tembo"
+  repository_password = var.tembo_license_key
 
   values = [
     yamlencode(module.tembo_agent_host.helm_values),
